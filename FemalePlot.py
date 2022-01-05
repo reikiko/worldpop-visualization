@@ -12,24 +12,25 @@ def femaleplot_tab(data):
     data.rename({'Country Name': 'Country'}, axis=1, inplace=True)
     country_list = data['Country'].unique().tolist()
     
-    x = np.arange(0,100)
+    x = np.arange(0,len(data.loc[1960].Country))
     
     #ColumnDataSource
     source = ColumnDataSource(data={
         'x': x,
-        'y': data.loc[1970].Count,
-        'country': data.loc[1970].Country,})
+        'y': data.loc[1960].Count,
+        'country': data.loc[1960].Country,})
     
     #Making Plot
-    plot = figure(x_range=(0,100), title='1970', x_axis_label='Percentage', y_axis_label='Female Count',
-           plot_height=400, plot_width=700, tools=[HoverTool(tooltips='@country')])
+    plot = figure(x_range=(0,100), title='Female Population Percentage for 1960', 
+                  x_axis_label='Country', y_axis_label='Female Perc',
+                  plot_height=400, plot_width=700, tools=[HoverTool(tooltips='@country')])
 
     # Add a circle glyph
     plot.circle(x='x', y='y', source=source, size=10, color="firebrick", alpha=0.5)
     
     def update_plot(attr, old, new):
         yr = slider.value
-        x = np.arange(0,100)
+        x = np.arange(0,len(data.loc[yr].Country))
 
         new_data = {'x': x,
                     'y': data.loc[yr].Count,
