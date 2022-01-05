@@ -14,7 +14,10 @@ def lineplot_tab(data):
     #Making line plot
     plot = figure(x_range=(1951,2020), title = 'Population per Year', 
                   x_axis_label = 'Year', y_axis_label = 'Population',plot_height=700,
-                  plot_width=700, tools=[HoverTool(tooltips='@y')])
+                  plot_width=700)
+    
+    hover = HoverTool(tooltips=[('Value','@y')])
+    plot.add_tools(hover)
 
     plot.line(x='x', y='y', source=source, line_width=3, color='firebrick')
     plot.circle(x='x', y='y', source=source, fill_color="white", line_color="firebrick", size=5)
