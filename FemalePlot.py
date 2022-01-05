@@ -1,44 +1,43 @@
 import pandas as pd
-import numpy as np
 import bokeh
 
 from bokeh.plotting import figure
-from bokeh.models import HoverTool, ColumnDataSource, Slider, Select, Panel
+from bokeh.models import HoverTool, ColumnDataSource, RangeSlider, Select, Panel
 from bokeh.layouts import widgetbox, row, gridplot
 
-def femaleplot_tab(data):
-    #Setting the data
-    data.set_index('Year', inplace = True)
-    data.rename({'Country Name': 'Country'}, axis=1, inplace=True)
-    country_list = data['Country'].unique().tolist()
-    
-    x = np.arange(0,len(data.loc[1960].Country))
-    
-    #ColumnDataSource
+def lineplot_tab(data):
+    #Setting source
     source = ColumnDataSource(data={
-        'x': x,
-        'y': data.loc[1960].Count,
-        'country': data.loc[1960].Country,})
-    
-    #Making Plot
-    plot = figure(x_range=(0,100), title='Female Population Percentage for 1960', 
-                  x_axis_label='Country', y_axis_label='Female Perc',
-                  plot_height=400, plot_width=700, tools=[HoverTool(tooltips='@country')])
+        'x': data['Year'],
+        'y': data['Population']})
 
-    # Add a circle glyph
-    plot.circle(x='x', y='y', source=source, size=10, color="firebrick", alpha=0.5)
+    #Making line plot
+    plot = figure(x_range=(1951,2020), title = 'Population per Year', 
+                  x_axis_label = 'Year', y_axis_label = 'Population',plot_height=700,
+                  plot_width=700)
     
+    hover = HoverTool(tooltips=[('Value','@y')])
+    plot.add_tools(hover)
+
+    plot.line(x='x', y='y', source=source, line_width=3, color='firebrick')
+    plot.circle(x='x', y='y', source=source, fill_color="white", line_color="firebrick", size=5)
+
+    #Define Update function
     def update_plot(attr, old, new):
-        yr = slider.value
-        x = np.arange(0,len(data.loc[yr].Country))
+        x = x_select.value
+        y = y_select.value
 
-        new_data = {'x': x,
-                    'y': data.loc[yr].Count,
-                    'country': data.loc[yr].Country,}
+        plot.xaxis.axis_label = x
+        plot.yaxis.axis_label = y
+
+        new_data = {
+        'x': data[x],
+        'y': data[y]}
+    
         source.data = new_data
-   
-        plot.title.text = 'Female Population Percentage for %d' % yr
 
+        plot.title.text = '%s per Year' % y
+        
     def style(p):
         p.title.align = 'center'
         p.title.text_font_size = '20pt'
@@ -54,10 +53,30 @@ def femaleplot_tab(data):
 
         return p
     
-    slider = Slider(start=1960, end=2017, step=1, value=1960, title='Year')
-    slider.on_change('value',update_plot)
+    # Make a dropdown select
+    x_select = Select(
+        options=['Year'],
+        value='Year',
+        title='X Axis')
+    x_select.on_change('value', update_plot)
+
+    y_select = Select(
+        options=['Population', 'NetChange', 'Urban'],
+        value='Population',
+        title='Y Axis')
+    y_select.on_change('value', update_plot)
+    
+    range_slider = RangeSlider(title = "Year Range",start = 1951, end = 2020, step = 1,
+                               value = (plot.x_range.start, plot.x_range.end))
+    range_slider.js_link("value", plot.x_range, "start", attr_selector=0)
+    range_slider.js_link("value", plot.x_range, "end", attr_selector=1)
+    
     plot = style(plot)
-    layout = row(widgetbox(slider), plot)
-    tab = Panel(child=layout, title = 'Female Percentage Plot')
+
+    layout = row(widgetbox(x_select, y_select, range_slider), plot)
+    tab = Panel(child=layout, title = 'World Population Plot')
     
     return tab
+    
+    
+    
