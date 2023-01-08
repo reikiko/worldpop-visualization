@@ -1,3 +1,3 @@
 # Data Visualization - Final Project
 
-Data visualization of World Population usin Bokeh Library. Dataset obtained from kaggle.com
+Data visualization of World Population using Bokeh Library. Dataset obtained from kaggle.com
